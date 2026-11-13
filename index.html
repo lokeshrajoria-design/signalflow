@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SignalFlow | From pastG, presentG to futureG</title>
+<meta name="description" content="Telecom protocols explained as animations you can pause, step through and scrub. Each step says what is sent, why, and which 3GPP document defines it.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* SignalFlow player. Layout: masthead, then one wide player (diagram left, plain-English caption right). */
+:root {
+  --bg: #f2f4f3;
+  --surface: #ffffff;
+  --fg: #11201e;
+  --muted: #5b6b68;
+  --line: #d3dcd9;
+  --teal: #0b8a79;
+  --amber: #c9650a;
+  --violet: #6a4fc4;
+  --on-accent: #ffffff;
+  --active-bg: rgba(11, 138, 121, .10);
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1716; --surface: #142321; --fg: #e5efed; --muted: #92a6a2; --line: #26403c;
+    --teal: #3cc7b1; --amber: #f0a04b; --violet: #a493f0; --on-accent: #06201b; --active-bg: rgba(60, 199, 177, .13);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1716; --surface: #142321; --fg: #e5efed; --muted: #92a6a2; --line: #26403c;
+  --teal: #3cc7b1; --amber: #f0a04b; --violet: #a493f0; --on-accent: #06201b; --active-bg: rgba(60, 199, 177, .13);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+.mast { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+.mast h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.1; letter-spacing: -.01em; }
+.mast p { margin: 4px 0 0; color: var(--muted); }
+.back { font-size: 13px; color: var(--teal); text-decoration: none; padding: 6px 0; }
+.back:hover { text-decoration: underline; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+.player { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.player-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 16px 18px 0; }
+.player-head h2 { font-size: clamp(20px, 2.6vw, 26px); }
+.stage { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+.diagram { min-width: 0; padding: 8px 6px 0 10px; }
+.diagram svg { display: block; width: 100%; height: auto; }
+.side { min-width: 0; padding: 18px 20px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.chip { align-self: flex-start; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; border: 1px solid currentColor; }
+.side h3 { font-size: 20px; line-height: 1.2; }
+.side p { margin: 0; }
+.msg { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; overflow-wrap: anywhere; }
+.spec { font-size: 12.5px; color: var(--muted); }
+.spec code { font-family: var(--font-mono); color: var(--fg); }
+.study { font-size: 12.5px; border: 1px dashed var(--amber); color: var(--amber); border-radius: 6px; padding: 6px 10px; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 18px 16px; border-top: 1px solid var(--line); }
+.btns { display: flex; gap: 6px; }
+button, select {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; min-height: 36px; padding: 0 12px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--teal); }
+button:focus-visible, select:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+button.main { background: var(--teal); border-color: var(--teal); color: var(--on-accent); min-width: 84px; font-weight: 600; }
+.scrub { flex: 1 1 240px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
+.time { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.lane { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 5; }
+.node rect { fill: var(--bg); stroke: var(--line); }
+.node text { font-family: var(--font-display); font-weight: 700; font-size: 13px; fill: var(--fg); text-anchor: middle; }
+.node .sub { font-family: var(--font-mono); font-weight: 400; font-size: 9.5px; fill: var(--muted); }
+.band { fill: var(--active-bg); }
+.arrow { stroke-width: 2.2; fill: none; stroke-linecap: round; }
+.lbl { font-family: var(--font-mono); font-size: 10.5px; text-anchor: middle; fill: var(--fg); }
+.num { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); text-anchor: end; }
+
+@media (max-width: 760px) {
+  .stage { grid-template-columns: 1fr; }
+  .side { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+.hero { display: flex; flex-direction: column; gap: 12px; padding-block: 12px 4px; }
+.hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.02; letter-spacing: -.02em; }
+.hero .tagline { font-family: var(--font-display); font-size: clamp(18px, 2.4vw, 24px); color: var(--teal); margin: 0; }
+.hero p.intro { max-width: 60ch; margin: 0; font-size: 16px; }
+.start { display: block; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.start:hover, .acard:hover { border-color: var(--teal); }
+.start h2 { font-size: clamp(20px, 2.8vw, 28px); margin: 4px 0 6px; }
+.start p { margin: 0; color: var(--muted); max-width: 60ch; }
+.start .go { display: inline-block; margin-top: 12px; font-weight: 600; color: var(--teal); }
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; align-items: start; }
+.group { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.group h2 { font-size: 22px; }
+.group .blurb { margin: 0; color: var(--muted); font-size: 13.5px; }
+.acard { display: block; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.acard h3 { font-size: 16px; line-height: 1.25; margin-bottom: 4px; }
+.acard .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.badge { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--amber); border: 1px solid var(--amber); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+.queue { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px; }
+.queue .eyebrow { margin-bottom: 4px; }
+.queue ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
+.principles { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 28px; color: var(--muted); font-size: 13.5px; }
+.principles span { display: block; min-width: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Telecom protocols in motion</div>
+    <h1>SignalFlow</h1>
+    <p class="tagline">From pastG, presentG to futureG</p>
+    <p class="intro">Telecom protocols explained as animations you can pause, step through and scrub. Each step says what is sent, why, and which 3GPP document defines it.</p>
+  </header>
+
+  <a class="start" href="animations/lte-attach-call-flow.html">
+    <div class="eyebrow">Start here &middot; pastG</div>
+    <h2>What happens when a phone attaches to LTE</h2>
+    <p>An animated, step-by-step LTE attach: cell search, random access, RRC setup, NAS attach and bearer setup.</p>
+    <span class="go">Play the animation &rarr;</span>
+  </a>
+
+  <section class="groups" aria-label="Animations by generation">
+    <div class="group">
+      <h2>pastG</h2>
+      <p class="blurb">LTE and what came before it.</p>
+      <a class="acard" href="animations/lte-attach-call-flow.html">
+        <h3>What happens when a phone attaches to LTE</h3>
+        <div class="meta">13 steps &middot; 0:31 &middot; Call flow</div>
+      </a>
+      <a class="acard" href="animations/rnti-explained.html">
+        <h3>Which ID does the phone answer to?<span class="badge">draft</span></h3>
+        <div class="meta">10 steps &middot; 0:28 &middot; Identifiers</div>
+      </a>
+      <div class="queue"><div class="eyebrow">In the queue</div><ul><li>Building a MAC PDU</li><li>Antenna ports are not antennas</li><li>Measurement reports and events A1 to B2</li></ul></div>
+    </div>
+    <div class="group">
+      <h2>presentG</h2>
+      <p class="blurb">5G NR, the network in service today.</p>
+
+      <div class="queue"><div class="eyebrow">In the queue</div><ul><li>NR registration and PDU session setup</li><li>Beam management</li><li>NR random access</li></ul></div>
+    </div>
+    <div class="group">
+      <h2>futureG</h2>
+      <p class="blurb">6G. Study stage: proposals and research, not finished standards.</p>
+
+      <div class="queue"><div class="eyebrow">In the queue</div><ul><li>Integrated sensing and communication</li><li>AI-native air interface</li></ul></div>
+    </div>
+  </section>
+
+  <footer class="principles">
+    <span>Every step names the 3GPP document it comes from.</span>
+    <span>futureG pages are labelled study stage and list their sources.</span>
+    <span>Plain words first, jargon second.</span>
+  </footer>
+</div>
+</body>
+</html>

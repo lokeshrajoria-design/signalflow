@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LTE Attach Call Flow | SignalFlow</title>
+<meta name="description" content="An animated, step-by-step LTE attach: cell search, random access, RRC setup, NAS attach and bearer setup.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* SignalFlow player. Layout: masthead, then one wide player (diagram left, plain-English caption right). */
+:root {
+  --bg: #f2f4f3;
+  --surface: #ffffff;
+  --fg: #11201e;
+  --muted: #5b6b68;
+  --line: #d3dcd9;
+  --teal: #0b8a79;
+  --amber: #c9650a;
+  --violet: #6a4fc4;
+  --on-accent: #ffffff;
+  --active-bg: rgba(11, 138, 121, .10);
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1716; --surface: #142321; --fg: #e5efed; --muted: #92a6a2; --line: #26403c;
+    --teal: #3cc7b1; --amber: #f0a04b; --violet: #a493f0; --on-accent: #06201b; --active-bg: rgba(60, 199, 177, .13);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1716; --surface: #142321; --fg: #e5efed; --muted: #92a6a2; --line: #26403c;
+  --teal: #3cc7b1; --amber: #f0a04b; --violet: #a493f0; --on-accent: #06201b; --active-bg: rgba(60, 199, 177, .13);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+.mast { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+.mast h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.1; letter-spacing: -.01em; }
+.mast p { margin: 4px 0 0; color: var(--muted); }
+.back { font-size: 13px; color: var(--teal); text-decoration: none; padding: 6px 0; }
+.back:hover { text-decoration: underline; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+.player { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.player-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 16px 18px 0; }
+.player-head h2 { font-size: clamp(20px, 2.6vw, 26px); }
+.stage { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+.diagram { min-width: 0; padding: 8px 6px 0 10px; }
+.diagram svg { display: block; width: 100%; height: auto; }
+.side { min-width: 0; padding: 18px 20px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.chip { align-self: flex-start; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; border: 1px solid currentColor; }
+.side h3 { font-size: 20px; line-height: 1.2; }
+.side p { margin: 0; }
+.msg { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; overflow-wrap: anywhere; }
+.spec { font-size: 12.5px; color: var(--muted); }
+.spec code { font-family: var(--font-mono); color: var(--fg); }
+.study { font-size: 12.5px; border: 1px dashed var(--amber); color: var(--amber); border-radius: 6px; padding: 6px 10px; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 18px 16px; border-top: 1px solid var(--line); }
+.btns { display: flex; gap: 6px; }
+button, select {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; min-height: 36px; padding: 0 12px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--teal); }
+button:focus-visible, select:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+button.main { background: var(--teal); border-color: var(--teal); color: var(--on-accent); min-width: 84px; font-weight: 600; }
+.scrub { flex: 1 1 240px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
+.time { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.lane { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 5; }
+.node rect { fill: var(--bg); stroke: var(--line); }
+.node text { font-family: var(--font-display); font-weight: 700; font-size: 13px; fill: var(--fg); text-anchor: middle; }
+.node .sub { font-family: var(--font-mono); font-weight: 400; font-size: 9.5px; fill: var(--muted); }
+.band { fill: var(--active-bg); }
+.arrow { stroke-width: 2.2; fill: none; stroke-linecap: round; }
+.lbl { font-family: var(--font-mono); font-size: 10.5px; text-anchor: middle; fill: var(--fg); }
+.num { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); text-anchor: end; }
+
+@media (max-width: 760px) {
+  .stage { grid-template-columns: 1fr; }
+  .side { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <div class="eyebrow">SignalFlow &middot; pastG</div>
+      <h1>SignalFlow</h1>
+      <p>From pastG, presentG to futureG.</p>
+    </div>
+    <a class="back" href="../index.html">&larr; All animations</a>
+  </header>
+
+  <section class="player" aria-labelledby="ptitle">
+    <div class="player-head">
+      <div>
+        <div class="eyebrow">Animation 1 · Call flow · Beginner</div>
+        <h2 id="ptitle">What happens when a phone attaches to LTE</h2>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="diagram"><svg id="svg" viewBox="0 0 720 548" role="img" aria-label="Animated LTE attach call flow between UE, eNodeB and MME"></svg></div>
+      <div class="side" aria-live="polite">
+        <span class="chip" id="phase"></span>
+        <div class="eyebrow" id="count"></div>
+        <h3 id="title"></h3>
+        <p id="body"></p>
+        <div class="msg" id="msg"></div>
+        <div class="spec" id="spec"></div>
+        
+      </div>
+    </div>
+    <div class="controls">
+      <div class="btns">
+        <button id="prev" aria-label="Previous step">&#9664;&#9664;</button>
+        <button id="play" class="main">Pause</button>
+        <button id="next" aria-label="Next step">&#9654;&#9654;</button>
+        <button id="restart">Restart</button>
+      </div>
+      <div class="scrub">
+        <input id="scrub" type="range" min="0" max="100" value="0" aria-label="Timeline">
+        <span class="time" id="time"></span>
+      </div>
+      <label class="tag" for="speed">Speed
+        <select id="speed"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select>
+      </label>
+    </div>
+  </section>
+</div>
+<script>window.FLOW = {"slug":"lte-attach-call-flow","title":"LTE Attach Call Flow | SignalFlow","description":"An animated, step-by-step LTE attach: cell search, random access, RRC setup, NAS attach and bearer setup.","generation":"pastG","status":"final","order":1,"eyebrow":"Animation 1 · Call flow · Beginner","heading":"What happens when a phone attaches to LTE","aria":"Animated LTE attach call flow between UE, eNodeB and MME","stepSecs":2.4,"nodes":[{"id":"ue","name":"UE","sub":"Phone"},{"id":"enb","name":"eNodeB","sub":"E-UTRAN"},{"id":"mme","name":"MME","sub":"EPC"}],"steps":[{"f":"enb","t":"ue","l":"PSS / SSS","ph":"Cell search","c":"teal","title":"The phone finds a cell","body":"On power-up the UE scans frequencies and listens for two synchronisation signals. They give it the timing and the physical cell ID. They also show whether the cell is FDD or TDD, because the signals sit in different places in each mode.","spec":"TS 36.211"},{"f":"enb","t":"ue","l":"MIB / SIB1","ph":"Cell search","c":"teal","title":"It reads the cell's broadcast","body":"The MIB gives bandwidth and frame number. SIB1 says which operator owns the cell and whether the UE is allowed to camp on it. Nothing is sent to the network yet.","spec":"TS 36.331"},{"f":"ue","t":"enb","l":"RACH Preamble (Msg1)","ph":"Random access","c":"amber","title":"The UE knocks on the door","body":"The UE has no uplink resources, so it sends a short preamble on the random access channel. Other UEs may pick the same one, which is why this is called contention-based.","spec":"TS 36.321"},{"f":"enb","t":"ue","l":"RA Response (Msg2)","ph":"Random access","c":"amber","title":"The eNodeB answers","body":"The response carries a timing advance, a temporary C-RNTI and an uplink grant for the next message. The UE now knows how early to transmit so its signal arrives on time.","spec":"TS 36.321"},{"f":"ue","t":"enb","l":"RRCConnReq (Msg3)","ph":"RRC setup","c":"violet","title":"The UE asks for a connection","body":"Using the grant from Msg2, the UE sends its identity and the reason for connecting. This message travels on SRB0 over the CCCH.","spec":"TS 36.331"},{"f":"enb","t":"ue","l":"RRCConnSetup (Msg4)","ph":"RRC setup","c":"violet","title":"The eNodeB sets up signalling","body":"It confirms the UE's identity, which resolves any contention from Msg1, and configures SRB1 for further signalling.","spec":"TS 36.331"},{"f":"ue","t":"enb","l":"RRCSetupComplete+Attach","ph":"NAS attach","c":"teal","title":"The attach request rides along","body":"The UE confirms setup and tucks the NAS Attach Request inside. The eNodeB does not read it. It only forwards it to the core network.","spec":"TS 36.331, TS 24.301"},{"f":"enb","t":"mme","l":"S1AP Initial UE Message","ph":"NAS attach","c":"teal","title":"The core network gets involved","body":"The eNodeB wraps the NAS message in S1AP and hands it to the MME over the S1-MME interface. From here the MME runs the attach.","spec":"TS 36.413"},{"f":"mme","t":"ue","l":"Authentication + Security Mode","ph":"NAS attach","c":"teal","title":"The network and the phone verify each other","body":"The MME checks the SIM using keys stored in the USIM and the HSS, then switches on ciphering and integrity protection. These NAS messages pass through the eNodeB untouched.","spec":"TS 24.301"},{"f":"mme","t":"enb","l":"Initial Context Setup Req","ph":"Bearer setup","c":"amber","title":"The MME orders a default bearer","body":"Alongside the Attach Accept, the MME tells the eNodeB to set up the UE context and the default EPS bearer, including the security keys for the radio side.","spec":"TS 36.413"},{"f":"enb","t":"ue","l":"RRCConnReconfiguration","ph":"Bearer setup","c":"amber","title":"The radio side is configured","body":"The eNodeB activates AS security and sets up SRB2 and the data radio bearer, and delivers the Attach Accept to the UE.","spec":"TS 36.331"},{"f":"ue","t":"enb","l":"RRCReconfigComplete","ph":"Bearer setup","c":"amber","title":"The UE confirms the bearer","body":"The data radio bearer is now live between the UE and the eNodeB. User traffic could flow from this point.","spec":"TS 36.331"},{"f":"ue","t":"mme","l":"Attach Complete","ph":"Attached","c":"teal","title":"Attached","body":"The UE tells the MME it accepted the default bearer. The phone has an IP address and shows a signal bar with data.","spec":"TS 24.301"}]};</script>
+<script>
+/* SignalFlow player. Reads window.FLOW (see animations-src/README.md for the data format). */
+(function () {
+  var F = window.FLOW;
+  var NS = "http://www.w3.org/2000/svg";
+  var STEP_SECS = F.stepSecs || 2.4;
+  var steps = F.steps, N = steps.length;
+  var COLORS = { teal: "var(--teal)", amber: "var(--amber)", violet: "var(--violet)" };
+  var ROW0 = 112, ROWH = 33;
+
+  var X = {}, NAMES = {};
+  F.nodes.forEach(function (n, i) {
+    X[n.id] = F.nodes.length === 1 ? 360 : 90 + i * (540 / (F.nodes.length - 1));
+    NAMES[n.id] = n.name;
+  });
+
+  var svg = document.getElementById("svg");
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  var bottom = ROW0 + (N - 1) * ROWH + 28;
+  svg.setAttribute("viewBox", "0 0 720 " + (bottom + 20));
+
+  F.nodes.forEach(function (n) {
+    var x = X[n.id];
+    el("line", { x1: x, y1: 62, x2: x, y2: bottom, "class": "lane" }, svg);
+    var g = el("g", { "class": "node" }, svg);
+    el("rect", { x: x - 56, y: 12, width: 112, height: 48, rx: 6 }, g);
+    var t = el("text", { x: x, y: 33 }, g); t.textContent = n.name;
+    var s = el("text", { x: x, y: 48, "class": "sub" }, g); s.textContent = n.sub || "";
+  });
+  var band = el("rect", { x: 4, y: 0, width: 712, height: ROWH - 4, rx: 4, "class": "band" }, svg);
+
+  var rows = steps.map(function (s, i) {
+    var y = ROW0 + i * ROWH;
+    var g = el("g", {}, svg);
+    var num = el("text", { x: 38, y: y + 4, "class": "num" }, g); num.textContent = i + 1;
+    var x1 = X[s.f], x2 = X[s.t], col = COLORS[s.c];
+    var line = el("line", { y1: y, y2: y, "class": "arrow", stroke: col }, g);
+    var head = el("polygon", { fill: col }, g);
+    var dot = el("circle", { r: 4.5, cy: y, fill: col }, g);
+    var lbl = el("text", { x: (x1 + x2) / 2, y: y - 7, "class": "lbl" }, g); lbl.textContent = s.l;
+    return { g: g, line: line, head: head, dot: dot, lbl: lbl, y: y, x1: x1, x2: x2, dir: x2 > x1 ? 1 : -1 };
+  });
+
+  function place(r, p, state) {
+    var tip = r.x1 + (r.x2 - r.x1) * p, d = r.dir, y = r.y;
+    r.line.setAttribute("x1", r.x1); r.line.setAttribute("x2", tip);
+    r.head.setAttribute("points", tip + "," + y + " " + (tip - d * 9) + "," + (y - 4.5) + " " + (tip - d * 9) + "," + (y + 4.5));
+    r.dot.setAttribute("cx", tip);
+    r.dot.style.display = state === "active" && p < 0.98 ? "" : "none";
+    r.head.style.display = p > 0 ? "" : "none";
+    r.line.style.display = p > 0 ? "" : "none";
+    r.g.style.opacity = state === "done" ? 0.5 : state === "active" ? 1 : 0.2;
+    r.lbl.style.fontWeight = state === "active" ? 500 : 400;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pos = 0, playing = true, speed = 1, last = null, shown = -1;
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) playing = false;
+  $("scrub").max = N * 100;
+
+  function fmt(s) { s = Math.floor(s); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+
+  function render() {
+    var idx = Math.min(Math.floor(pos), N - 1);
+    var p = pos >= N ? 1 : pos - idx;
+    rows.forEach(function (r, i) {
+      if (i < idx) place(r, 1, "done");
+      else if (i === idx) place(r, p, "active");
+      else place(r, 0, "todo");
+    });
+    band.setAttribute("y", rows[idx].y - ROWH / 2 - 1);
+    if (idx !== shown) {
+      shown = idx;
+      var s = steps[idx];
+      var chip = $("phase"); chip.textContent = s.ph; chip.style.color = COLORS[s.c];
+      $("count").textContent = "Step " + (idx + 1) + " of " + N;
+      $("title").textContent = s.title;
+      $("body").textContent = s.body;
+      $("msg").textContent = NAMES[s.f] + " → " + NAMES[s.t] + "   " + s.l;
+      $("spec").innerHTML = "Spec reference: <code>" + s.spec + "</code>";
+    }
+    $("scrub").value = Math.round(pos * 100);
+    $("time").textContent = fmt(pos * STEP_SECS) + " / " + fmt(N * STEP_SECS);
+    $("play").textContent = playing ? "Pause" : (pos >= N ? "Replay" : "Play");
+  }
+
+  function tick(ts) {
+    if (last === null) last = ts;
+    var dt = Math.min((ts - last) / 1000, 0.1); last = ts;
+    if (playing) {
+      pos += dt * speed / STEP_SECS;
+      if (pos >= N) { pos = N; playing = false; }
+      render();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  $("play").onclick = function () { if (pos >= N) pos = 0; playing = !playing; render(); };
+  $("restart").onclick = function () { pos = 0; playing = true; render(); };
+  $("prev").onclick = function () {
+    playing = false;
+    var i = Math.min(Math.floor(pos), N - 1);
+    pos = (pos - i > 0.1) ? i : Math.max(0, i - 1);
+    render();
+  };
+  $("next").onclick = function () { playing = false; pos = Math.min(N - 0.001, Math.floor(pos) + 1); render(); };
+  $("scrub").oninput = function (e) { playing = false; pos = Math.min(N, e.target.value / 100); render(); };
+  $("speed").onchange = function (e) { speed = parseFloat(e.target.value); };
+
+  render();
+  requestAnimationFrame(tick);
+})();
+
+</script>
+</body>
+</html>
