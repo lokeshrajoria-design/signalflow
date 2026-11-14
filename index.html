@@ -119,6 +119,29 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
 .queue ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
 .principles { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 28px; color: var(--muted); font-size: 13.5px; }
 .principles span { display: block; min-width: 0; }
+.stories{display:flex;flex-direction:column;gap:12px}
+.stories h2{font-size:clamp(22px,3vw,30px);margin:0}
+.stories .sub{margin:0;color:var(--muted);max-width:60ch;font-size:14.5px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.scard{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(14px);animation:rise .6s ease forwards}
+.scard:nth-child(2){animation-delay:.12s}
+@keyframes rise{to{opacity:1;transform:none}}
+.thumb{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;background:#0d1716}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.scard:hover .thumb img{transform:scale(1.05)}
+.thumb .play{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(transparent 55%,rgba(0,0,0,.45))}
+.thumb .play i{width:58px;height:58px;border-radius:50%;background:rgba(60,199,177,.92);display:grid;place-items:center;box-shadow:0 0 0 0 rgba(60,199,177,.6);animation:pulse 2.4s infinite}
+.thumb .play i::after{content:"";border-left:16px solid #0d1716;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
+@keyframes pulse{70%{box-shadow:0 0 0 16px rgba(60,199,177,0)}100%{box-shadow:0 0 0 0 rgba(60,199,177,0)}}
+.sbody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.sbody h3{font-size:17px;line-height:1.25;margin:0}
+.sbody p{margin:0;color:var(--muted);font-size:13.5px}
+.langs{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.langs a{text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;transition:.2s}
+.langs a:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+.langs a small{font-family:var(--font-mono);font-weight:400;color:var(--muted);margin-left:6px}
+.chip{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--teal)}
+@media (prefers-reduced-motion:reduce){.scard,.thumb .play i{animation:none;opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -131,12 +154,7 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
     <a class="yt" href="https://www.youtube.com/@signalflowtelecom" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff0033" d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.900.5A3 3 0 0 0 1 7.200C.5 9.100.5 12 .5 12s0 2.900.5 4.800a3 3 0 0 0 2.100 2.100c1.900.5 8.900.5 8.900.5s7 0 8.900-.5a3 3 0 0 0 2.100-2.100c.5-1.900.5-4.800.5-4.800s0-2.900-.5-4.800z"/><path fill="#fff" d="M9.800 15.500v-7l6 3.500z"/></svg>Watch the stories on YouTube</a>
   </header>
 
-  <a class="start" href="animations/lte-attach-call-flow.html">
-    <div class="eyebrow">Start here &middot; pastG</div>
-    <h2>What happens when a phone attaches to LTE</h2>
-    <p>An animated, step-by-step LTE attach: cell search, random access, RRC setup, NAS attach and bearer setup.</p>
-    <span class="go">Play the animation &rarr;</span>
-  </a>
+  <section class="stories" aria-label="Story videos"><div class="eyebrow">New &middot; story videos</div><h2>Learn it as a story</h2><p class="sub">A short story first, then the real telecom names and the real message flow. Each one comes in English and Hindi.</p><div class="sgrid"><article class="scard"><a class="thumb" href="https://www.youtube.com/watch?v=Rf2EcRJyaPE" target="_blank" rel="noopener"><img src="assets/thumbs/Rf2EcRJyaPE.jpg" alt="What your phone does the moment you switch it on" loading="lazy"><span class="play"><i></i></span></a><div class="sbody"><span class="chip">pastG · 4G</span><h3>What your phone does the moment you switch it on</h3><p>Riya lands in a new city at midnight. Her phone checks in, like a hotel guest.</p><div class="langs"><a href="https://www.youtube.com/watch?v=Rf2EcRJyaPE" target="_blank" rel="noopener">English<small>3:08</small></a><a href="https://www.youtube.com/watch?v=qZ-KvPbpXMs" target="_blank" rel="noopener">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;<small>3:41</small></a></div></div></article><article class="scard"><a class="thumb" href="https://www.youtube.com/watch?v=b-LdS0Orp5U" target="_blank" rel="noopener"><img src="assets/thumbs/b-LdS0Orp5U.jpg" alt="How does the network know which phone is which?" loading="lazy"><span class="play"><i></i></span></a><div class="sbody"><span class="chip">pastG · 4G</span><h3>How does the network know which phone is which?</h3><p>A school roll call that explains the temporary ID every phone gets.</p><div class="langs"><a href="https://www.youtube.com/watch?v=b-LdS0Orp5U" target="_blank" rel="noopener">English<small>3:36</small></a><a href="https://www.youtube.com/watch?v=Bk0drNrcr8U" target="_blank" rel="noopener">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;<small>4:13</small></a></div></div></article></div></section>
 
   <section class="groups" aria-label="Animations by generation">
     <div class="group">
@@ -165,6 +183,13 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
       <div class="queue"><div class="eyebrow">In the queue</div><ul><li>Integrated sensing and communication</li><li>AI-native air interface</li></ul></div>
     </div>
   </section>
+
+  <a class="start" href="animations/lte-attach-call-flow.html">
+    <div class="eyebrow">Start here &middot; pastG</div>
+    <h2>What happens when a phone attaches to LTE</h2>
+    <p>An animated, step-by-step LTE attach: cell search, random access, RRC setup, NAS attach and bearer setup.</p>
+    <span class="go">Play the animation &rarr;</span>
+  </a>
 
   <footer class="principles">
     <span>Every step names the 3GPP document it comes from.</span>
