@@ -97,6 +97,9 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
 .hero { display: flex; flex-direction: column; gap: 12px; padding-block: 12px 4px; }
 .hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.02; letter-spacing: -.02em; }
 .hero .tagline { font-family: var(--font-display); font-size: clamp(18px, 2.4vw, 24px); color: var(--teal); margin: 0; }
+.yt { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; text-decoration: none; color: var(--text, inherit); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+.yt:hover { border-color: var(--teal); color: var(--teal); }
+.yt svg { width: 18px; height: 18px; flex: none; }
 .hero p.intro { max-width: 60ch; margin: 0; font-size: 16px; }
 .start { display: block; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
 .start:hover, .acard:hover { border-color: var(--teal); }
@@ -125,6 +128,7 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
     <h1>SignalFlow Stories</h1>
     <p class="tagline">From pastG, presentG to futureG</p>
     <p class="intro">Telecom protocols explained as animations you can pause, step through and scrub. Each step says what is sent, why, and which 3GPP document defines it.</p>
+    <a class="yt" href="https://www.youtube.com/@signalflowtelecom" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff0033" d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.900.5A3 3 0 0 0 1 7.200C.5 9.100.5 12 .5 12s0 2.900.5 4.800a3 3 0 0 0 2.100 2.100c1.900.5 8.900.5 8.900.5s7 0 8.900-.5a3 3 0 0 0 2.100-2.100c.5-1.900.5-4.800.5-4.800s0-2.900-.5-4.800z"/><path fill="#fff" d="M9.800 15.500v-7l6 3.500z"/></svg>Watch the stories on YouTube</a>
   </header>
 
   <a class="start" href="animations/lte-attach-call-flow.html">
@@ -166,6 +170,7 @@ input[type=range] { flex: 1; min-width: 0; accent-color: var(--teal); }
     <span>Every step names the 3GPP document it comes from.</span>
     <span>futureG pages are labelled study stage and list their sources.</span>
     <span>Plain words first, jargon second.</span>
+    <span><a href="https://www.youtube.com/@signalflowtelecom" target="_blank" rel="noopener" style="color:inherit">YouTube: @signalflowtelecom</a></span>
   </footer>
 </div>
 </body>
